@@ -1,0 +1,27 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://addons/Dialogbox/Dialogbox.gd" type="Script" id=1]
+[ext_resource path="res://addons/Dialogbox/resources/SuperLegendBoy-4w8Y.ttf" type="DynamicFontData" id=2]
+[ext_resource path="res://addons/Dialogbox/resources/click.wav" type="AudioStream" id=3]
+[ext_resource path="res://addons/Dialogbox/resources/Dialogbox.png" type="Texture" id=4]
+[ext_resource path="res://addons/Dialogbox/resources/Showcase.gd" type="Script" id=5]
+
+[sub_resource type="DynamicFont" id=1]
+font_data = ExtResource( 2 )
+
+[node name="Showcase" type="Node2D"]
+script = ExtResource( 5 )
+
+[node name="Dialogbox" type="NinePatchRect" parent="."]
+margin_right = 520.0
+margin_bottom = 128.0
+texture = ExtResource( 4 )
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+character_speed = 0.5
+input_trigger = "ui_select"
+textbox_size = Vector2( 464, 64 )
+sound = ExtResource( 3 )
+font = SubResource( 1 )
