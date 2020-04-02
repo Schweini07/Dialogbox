@@ -2,5 +2,6 @@ extends Node2D
 
 func _ready():
 	yield(get_tree(), "idle_frame")
-	var dialog := ["Good morning, Sir. I knew you would come. I knew it", "Surprised aren't you?"]
-	$Dialogbox.show_text(dialog)
+	var dialog := ["Good morning, Sir. I [rainbow freq=0.2 sat=10 val=20][wave amp=50=10]knew[/wave][/rainbow] you would come. I [rainbow freq=0.2 sat=10 val=20][tornado radius=5 freq=2]knew[/tornado][/rainbow] it",
+	 "But something's [color=aqua]wrong[/color] isn't it?"]
+	$Dialogbox.show_text(dialog, [1, 3])
