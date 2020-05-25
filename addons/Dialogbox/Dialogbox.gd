@@ -27,104 +27,97 @@ version = "0.2"
 
 
 tool
+class_name Dialogbox, "icon.png"
 extends NinePatchRect
-
-#properties
-export (bool) var use_visible_characters = true #If set true, the characters (letters) show up with the speed determined trough the speed property
-export (float) var character_speed = 1 #Determines how fast the characters (letters) will show up. The smaller the number the faster the text will be.
-export (bool) var play_sound = true #If set true, the sound will play after every character that showed up
-export (bool) var use_input_trigger = true #If set true, after the end of every dialog, the plugin waits for the input_trigger
-export (bool) var use_speedup = true
-export (Array) var text #An Array. Can be used in the editor but is not recommended, it works better with code: show_text(["Hi", "how", "are", "you?"])
-export (String) var input_trigger #The action which is used to confirm the next dialog (must be picked from the InputMap)
-export (String) var input_speedup #The action that lets you speed up the text
-export (float) var speedup_speed = 1
-export (float) var vertical_text_margin = 35 #Is used to determine the vertical position of the textbox (textbox = the text)
-export (float) var horizontal_text_margin = 10 #Is used to determine the vertical position of the textbox (textbox = the text)
-export (Vector2) var textbox_size = Vector2(256, 64) #The size of the text (not the font size, but the size of the whole text)
-export (Vector2) var frame_size = Vector2(64, 64)
-export (AudioStream) var sound #Is only played when use_visible_characters and play_sound is true; Plays after after every character
-export (Font) var font #The font of the text
-export (bool) var use_character_frame = false #A frame where you can see the characters expressions
-export (Array) var frame_textures
-#misc
-var text_instance := preload("text.tscn").instance()
-var text_node : RichTextLabel
-var frame : TextureRect
-var audio : AudioStreamPlayer
 
 #signals
 signal dialog_finished
 signal input_triggered
 signal finished
 
-func _enter_tree():
-	#container for the text
+#properties
+export (bool) var use_visible_characters = true setget set_visible_characters_usage, is_visible_characters_usage # If set true, the characters (letters) show up with the speed determined trough the speed property
+export (bool) var use_input_trigger = true # If set true, after the end of every dialog, the plugin waits for the input_trigger
+export (bool) var use_speedup = true
+export (bool) var play_sound = true # If set true, the sound will play after every character that showed up
+export (Array, String, MULTILINE) var text # An Array. Can be used in the editor but is not recommended, it works better with code: show_text(["Hi", "how", "are", "you?"])
+export (String) var input_trigger # The action which is used to confirm the next dialog (must be picked from the InputMap)
+export (String) var input_speedup # The action that lets you speed up the text
+export (float) var speedup_speed = 1
+export (float) var character_speed = 1 # Determines how fast the characters (letters) will show up. The smaller the number the faster the text will be.
+export (Vector2) var text_margin = Vector2(35, 10) # Is used to determine the position of the textbox (textbox = the text)
+export (Vector2) var textbox_size = Vector2(256, 64) # The size of the text (not the font size, but the size of the whole text)
+export (AudioStream) var sound # Is only played when use_visible_characters and play_sound is true; Plays after after every character
+export (Font) var font # The font of the text
+export (bool) var use_character_frame = false # A frame where you can see the characters expressions
+export (Array, Texture) var frame_textures
+
+#misc
+var text_instance := preload("text.tscn").instance()
+var hsplit_instance := preload("HSplitContainer.tscn").instance()
+var text_node : RichTextLabel
+var frame : TextureRect
+var audio : AudioStreamPlayer
+var frame_rect_size : Vector2
+
+"""
+Basic Functions
+"""
+
+func _enter_tree() -> void: # create dialogbox
+	# container for the text
 	var container = Container.new()
 	container.anchor_right = 1
 	container.anchor_bottom = 1
 	
-	container.margin_right = -vertical_text_margin
-	container.margin_bottom = -horizontal_text_margin
-	container.margin_left = vertical_text_margin
-	container.margin_top = horizontal_text_margin
+	container.margin_right = -text_margin.x
+	container.margin_bottom = -text_margin.y
+	container.margin_left = text_margin.x
+	container.margin_top = text_margin.y
 	
 	container.name = "Container"
 	add_child(container)
 	
 	if use_character_frame:
-		var hsplitcontainer = HSplitContainer.new()
-		
-		hsplitcontainer.anchor_right = 1
-		hsplitcontainer.anchor_bottom = 1
-		
-		hsplitcontainer.split_offset = rect_size.x- frame_size.x
-		hsplitcontainer.dragger_visibility = 1
-		hsplitcontainer.name = "HSplitContainer"
-		
-		container.add_child(hsplitcontainer)
-		
-		hsplitcontainer.add_child(text_instance)
+		container.add_child(hsplit_instance)
 		
 		text_node = $Container/HSplitContainer/text
-		text_node.rect_size = textbox_size
-		
-		frame = TextureRect.new()
-		
-		frame.set_h_size_flags(3)
-		frame.set_stretch_ratio(.2)
-		
-		hsplitcontainer.add_child(frame)
-		
+		frame = $Container/HSplitContainer/frame
 	else:
-		#instance the text
+		# instance the text
 		container.add_child(text_instance)
 		
 		text_node = $Container/text
 		text_node.rect_size = textbox_size
 		
-	#set the text font
+	# set the text font
 	if font != null:
 		text_node.add_font_override("normal_font", font)
 		
-	#initalize the sound
+	# initalize the sound
 	audio = AudioStreamPlayer.new()
 	
 	if sound != null:
 		audio.set_stream(sound)
 		
 	add_child(audio)
-	
 
-func show_text(textarray : Array, framearray : Array = [0]):
+func _ready() -> void: # show text as soon as ready
+	yield(get_tree(), "idle_frame")
+	if text.size() > 0:
+		show_text(text)
+
+func show_text(textarray : Array, framearray : Array = [0]) -> void: # the show_text function
 	show()
 	
-	var frame_count = -1
+	var frame_array_count := -1
+	var frame_count : int
 	
 	for text in textarray:
 		if use_character_frame:
-			frame_count += 1
-			frame.set_texture(frame_textures[frame_count])
+			frame_array_count += 1
+			frame_count = framearray[frame_array_count]
+			frame.texture = frame_textures[frame_count]
 			
 		text_node.set_visible_characters(0)
 		text_node.set_bbcode(text)
@@ -134,11 +127,12 @@ func show_text(textarray : Array, framearray : Array = [0]):
 			for i in text_node.get_total_character_count():
 				text_node.visible_characters += 1
 				
-				if sound != null && play_sound:
+					
+				if sound != null and play_sound:
 					audio.play()
 					
-				if Input.is_action_pressed(input_speedup) && use_speedup:
-					yield(get_tree().create_timer(speedup_speed/100), "timeout")
+				if Input.is_action_pressed(input_speedup) and use_speedup:
+					yield(get_tree().create_timer(speedup_speed/50), "timeout")
 					
 				else:
 					yield(get_tree().create_timer(character_speed/10), "timeout")
@@ -150,14 +144,29 @@ func show_text(textarray : Array, framearray : Array = [0]):
 		
 		if use_input_trigger:
 			yield(self, "input_triggered")
-			
+		else:
+			yield(get_tree().create_timer(1), "timeout")
+		
+		yield(get_tree(), "idle_frame")
+		
+	audio.stop()
 	hide()
 	
 	emit_signal("finished")
 
-func _input(event):
+func _input(event) -> void: # input function to know, when the user wants to see the next dialog
 	if Input.is_action_just_pressed(input_trigger):
 		emit_signal("input_triggered")
 
-func _exit_tree():
+func _exit_tree() -> void: # remove dialogbox
 	$Container.queue_free()
+
+"""
+Setters and Getters
+"""
+
+func set_visible_characters_usage(value) -> void:
+	use_visible_characters = value
+
+func is_visible_characters_usage() -> bool:
+	return use_visible_characters
