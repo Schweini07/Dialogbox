@@ -16,11 +16,12 @@ _global_script_class_icons={
 [application]
 
 config/name="Dialogbox"
+run/main_scene="res://addons/Dialogbox/resources/Showcase.tscn"
 config/icon="res://addons/Dialogbox/icon.png"
 
 [editor_plugins]
 
-enabled=PoolStringArray( "Dialogbox" )
+enabled=PoolStringArray( "Dialogbox", "adbox" )
 
 [rendering]
 
