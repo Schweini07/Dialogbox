@@ -6,7 +6,7 @@
 [ext_resource path="res://addons/Dialogbox/resources/Dialogbox.png" type="Texture" id=4]
 [ext_resource path="res://addons/Dialogbox/resources/Showcase.gd" type="Script" id=5]
 [ext_resource path="res://addons/Dialogbox/resources/face_expression2.png" type="Texture" id=6]
-[ext_resource path="res://addons/Dialogbox/resources/face_expression1.png" type="Texture" id=7]
+[ext_resource path="res://addons/Dialogbox/resources/face_expression1.png" type="Texture" id=8]
 
 [sub_resource type="DynamicFont" id=1]
 font_data = ExtResource( 2 )
@@ -22,17 +22,12 @@ script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-character_speed = 0.5
 input_trigger = "ui_select"
 input_speedup = "ui_select"
+speedup_speed = 0.5
+character_speed = 0.5
+textbox_size = Vector2( 474, 64 )
 sound = ExtResource( 3 )
 font = SubResource( 1 )
 use_character_frame = true
-frame_textures = [ ExtResource( 7 ), ExtResource( 6 ) ]
-
-[node name="TextureRect" type="TextureRect" parent="."]
-margin_right = 40.0
-margin_bottom = 40.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
+frame_textures = [ ExtResource( 8 ), ExtResource( 6 ) ]

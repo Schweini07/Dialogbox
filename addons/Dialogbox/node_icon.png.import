@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/face_expression1.png-02aa95ba4c1bf78e0d5f248d457939f0.stex"
+path="res://.import/node_icon.png-c12e684b555cd0f986bbb91f28ef09ca.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/Dialogbox/resources/face_expression1.png"
-dest_files=[ "res://.import/face_expression1.png-02aa95ba4c1bf78e0d5f248d457939f0.stex" ]
+source_file="res://addons/Dialogbox/node_icon.png"
+dest_files=[ "res://.import/node_icon.png-c12e684b555cd0f986bbb91f28ef09ca.stex" ]
 
 [params]
 
@@ -20,7 +20,7 @@ compress/hdr_mode=0
 compress/bptc_ldr=0
 compress/normal_map=0
 flags/repeat=0
-flags/filter=true
+flags/filter=false
 flags/mipmaps=false
 flags/anisotropic=false
 flags/srgb=2
@@ -30,5 +30,5 @@ process/HDR_as_SRGB=false
 process/invert_color=false
 stream=false
 size_limit=0
-detect_3d=true
+detect_3d=false
 svg/scale=1.0

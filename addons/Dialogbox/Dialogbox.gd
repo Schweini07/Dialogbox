@@ -27,7 +27,7 @@ version = "0.2"
 
 
 tool
-class_name Dialogbox, "icon.png"
+class_name Dialogbox, "node_icon.png"
 extends NinePatchRect
 
 #signals
@@ -50,6 +50,7 @@ export (Vector2) var textbox_size = Vector2(256, 64) # The size of the text (not
 export (AudioStream) var sound # Is only played when use_visible_characters and play_sound is true; Plays after after every character
 export (Font) var font # The font of the text
 export (bool) var use_character_frame = false # A frame where you can see the characters expressions
+export (bool) var change_frame_side = false #if set true the frame will be located on the left side
 export (Array, Texture) var frame_textures
 
 #misc
@@ -83,6 +84,9 @@ func _enter_tree() -> void: # create dialogbox
 		
 		text_node = $Container/HSplitContainer/text
 		frame = $Container/HSplitContainer/frame
+		
+		if change_frame_side: # For changing the side of the frame, for this the frames node position in the scene tree is set to 0
+			$Container/HSplitContainer.move_child(frame, 0)
 	else:
 		# instance the text
 		container.add_child(text_instance)
