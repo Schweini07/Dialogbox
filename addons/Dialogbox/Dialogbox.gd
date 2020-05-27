@@ -35,31 +35,52 @@ signal dialog_finished
 signal input_triggered
 signal finished
 
-#properties
+# properties
+
+# Bool Properties
 export (bool) var use_visible_characters = true setget set_visible_characters_usage, is_visible_characters_usage # If set true, the characters (letters) show up with the speed determined trough the speed property
 export (bool) var use_input_trigger = true # If set true, after the end of every dialog, the plugin waits for the input_trigger
 export (bool) var use_speedup = true
 export (bool) var play_sound = true # If set true, the sound will play after every character that showed up
+
+# Dialogs
 export (Array, String, MULTILINE) var text # An Array. Can be used in the editor but is not recommended, it works better with code: show_text(["Hi", "how", "are", "you?"])
+
+# Input Properties
 export (String) var input_trigger # The action which is used to confirm the next dialog (must be picked from the InputMap)
 export (String) var input_speedup # The action that lets you speed up the text
+
+# Speed Properties
 export (float) var speedup_speed = 1
 export (float) var character_speed = 1 # Determines how fast the characters (letters) will show up. The smaller the number the faster the text will be.
+
+# Vector2 Properties
 export (Vector2) var text_margin = Vector2(35, 10) # Is used to determine the position of the textbox (textbox = the text)
 export (Vector2) var textbox_size = Vector2(256, 64) # The size of the text (not the font size, but the size of the whole text)
+
+# Resource Properties
 export (AudioStream) var sound # Is only played when use_visible_characters and play_sound is true; Plays after after every character
 export (Font) var font # The font of the text
+
+# Frame Properties
 export (bool) var use_character_frame = false # A frame where you can see the characters expressions
 export (bool) var change_frame_side = false #if set true the frame will be located on the left side
 export (Array, Texture) var frame_textures
 
-#misc
+# misc
+
+# Preloads
 var text_instance := preload("text.tscn").instance()
 var hsplit_instance := preload("HSplitContainer.tscn").instance()
+
+# References
 var text_node : RichTextLabel
 var frame : TextureRect
 var audio : AudioStreamPlayer
+
+# others
 var frame_rect_size : Vector2
+var show_characters := true
 
 """
 Basic Functions
@@ -68,9 +89,11 @@ Basic Functions
 func _enter_tree() -> void: # create dialogbox
 	# container for the text
 	var container = Container.new()
+	# set the layout to full_rect
 	container.anchor_right = 1
 	container.anchor_bottom = 1
 	
+	# set the margin exactly how the user wants it to
 	container.margin_right = -text_margin.x
 	container.margin_bottom = -text_margin.y
 	container.margin_left = text_margin.x
@@ -108,11 +131,20 @@ func _enter_tree() -> void: # create dialogbox
 
 func _ready() -> void: # show text as soon as ready
 	yield(get_tree(), "idle_frame")
-	if text.size() > 0:
+	if text.size() > 0 && !Engine.editor_hint:
 		show_text(text)
+	else:
+		if text.size() <= 0:
+			return
+		text_node.set_bbcode(text[0])
+		
+		if use_character_frame:
+			frame.texture = frame_textures[0]
 
 func show_text(textarray : Array, framearray : Array = [0]) -> void: # the show_text function
 	show()
+	
+	var current_visible_characters : int
 	
 	var frame_array_count := -1
 	var frame_count : int

@@ -15,8 +15,9 @@ font_data = ExtResource( 2 )
 script = ExtResource( 5 )
 
 [node name="Dialogbox" type="NinePatchRect" parent="."]
+margin_top = -0.340561
 margin_right = 520.0
-margin_bottom = 128.0
+margin_bottom = 127.659
 texture = ExtResource( 4 )
 script = ExtResource( 1 )
 __meta__ = {
