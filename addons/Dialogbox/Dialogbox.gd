@@ -1,19 +1,17 @@
 """
-Thank you, for using this plugin in you project, this really means much to me.
+To properly use the plugin consider reading the wiki(https://github.com/Schweini07/Dialogbox/wiki) 
+or read the comments above the variables.
 
-To properly use the plugin consider reading the readme.md or just read the explanation
-next to the variables under this text.
-
-This plugin is still under development and right now only the basics of a dialogbox are implemented,
-so if you have any issues with this plugin or have an idea, consider opening an issue on the Github repo: 
+This plugin is still under development, so if you have any issues with this plugin or have an enhancment, 
+consider opening an issue on the Github repo: 
 https://github.com/Schweini07/Dialogbox
 
 Also feel free to use the font, the sound and the textbox from the resources folder.
 
-#sound and textbox
+# sound and textbox
 Those two resource are made by me and are under no liscense, you can use it for non- and commercial products.
 
-#font
+# font
 The font is the SuperLegendBody font 
 ('res://addons/Dialogbox/resources/SuperLegendBoy-4w8Y.ttf') -> Free for non-commercial use,
 you have to buy a liscense for commercial use. Website: https://www.dafont.com/de/super-legend-boy.font
@@ -21,7 +19,7 @@ you have to buy a liscense for commercial use. Website: https://www.dafont.com/d
 There is also a Showcase scene in the resource folder with which you can experiment with the plugin.
 
 plugin = Dialogbox
-author= Laurenz 'Schweini' Reinthaler
+author= Laurenz Reinthaler
 version = "0.2"
 """
 
@@ -30,57 +28,92 @@ tool
 class_name Dialogbox, "node_icon.png"
 extends NinePatchRect
 
-#signals
+#Signals
+
+# Is emitted when all the characters (letters) of a dialog are visible
 signal dialog_finished
+# Is emitted when the input input_trigger is triggered
 signal input_triggered
+# Is emitted when all dialogs were shown
 signal finished
 
-# properties
+# Properties
 
 # Bool Properties
-export (bool) var use_visible_characters = true setget set_visible_characters_usage, is_visible_characters_usage # If set true, the characters (letters) show up with the speed determined trough the speed property
-export (bool) var use_input_trigger = true # If set true, after the end of every dialog, the plugin waits for the input_trigger
+
+# If set true, the characters (letters) show up with the speed determined trough the speed property
+export (bool) var use_visible_characters = true setget set_visible_characters_usage, is_visible_characters_usage
+# If set true, after the end of every dialog, the plugin waits for the input_trigger action
+export (bool) var use_input_trigger = true
+# If set true, the text can be sped up with the input_speedup action
 export (bool) var use_speedup = true
-export (bool) var play_sound = true # If set true, the sound will play after every character that showed up
+# If set true, the sound will play after every character that showed up
+export (bool) var play_sound = true
 
 # Dialogs
-export (Array, String, MULTILINE) var text # An Array. Can be used in the editor but is not recommended, it works better with code: show_text(["Hi", "how", "are", "you?"])
+
+# Works similar to show_text() but is used in the editor and can't use character frames
+export (Array, String, MULTILINE) var text
 
 # Input Properties
-export (String) var input_trigger # The action which is used to confirm the next dialog (must be picked from the InputMap)
-export (String) var input_speedup # The action that lets you speed up the text
+
+# The action which is used to confirm the next dialog (must be picked from the InputMap as a string)
+export (String) var input_trigger
+# The action that lets you speed up the text
+export (String) var input_speedup
 
 # Speed Properties
+
+# Determines how fast the text can be sped up with input_speedup
 export (float) var speedup_speed = 1
-export (float) var character_speed = 1 # Determines how fast the characters (letters) will show up. The smaller the number the faster the text will be.
+# Determines how fast the characters (letters) will show up.
+export (float) var character_speed = 1
 
 # Vector2 Properties
-export (Vector2) var text_margin = Vector2(35, 10) # Is used to determine the position of the textbox (textbox = the text)
-export (Vector2) var textbox_size = Vector2(256, 64) # The size of the text (not the font size, but the size of the whole text)
+
+# Is used to determine the position of the textbox (textbox = the text)
+export (Vector2) var text_margin = Vector2(35, 10)
+# The size of the text (not the font size, but the size of the whole text)
+export (Vector2) var textbox_size = Vector2(256, 64)
 
 # Resource Properties
-export (AudioStream) var sound # Is only played when use_visible_characters and play_sound is true; Plays after after every character
-export (Font) var font # The font of the text
 
-# Frame Properties
-export (bool) var use_character_frame = false # A frame where you can see the characters expressions
-export (bool) var change_frame_side = false #if set true the frame will be located on the left side
+# Is only played when use_visible_characters and play_sound is true; Plays after after every character
+export (AudioStream) var sound
+# The font of the text
+export (Font) var font
+
+# Character Frame Properties
+
+# A frame where you can see the characters expressions
+export (bool) var use_character_frame = false
+# If set true, the character frame will be located on the left side
+export (bool) var change_frame_side = false
+# Here you can set the textures of the character frame. For more information look up the wiki: https://github.com/Schweini07/Dialogbox/wiki
 export (Array, Texture) var frame_textures
 
 # misc
 
 # Preloads
+
+# the instance of the text when use_character_frame is set to false
 var text_instance := preload("text.tscn").instance()
+# the instance of the HSplitContainer when use_character_frame is set to true
 var hsplit_instance := preload("HSplitContainer.tscn").instance()
 
-# References
+# Referencess
+
+# the RichTextLabel node which is used to show text
 var text_node : RichTextLabel
-var frame : TextureRect
+# the TextureRect where character_frames are shown
+var character_frame : TextureRect
+# the AudioStreamPlayer which plays 'sound', an AudioStream
 var audio : AudioStreamPlayer
 
 # others
-var frame_rect_size : Vector2
-var show_characters := true
+
+# the pitch of the AudioStreanPlayer 'audio'
+var audio_pitch : float = 1.0 setget set_audio_pitch, get_audio_pitch
 
 """
 Basic Functions
@@ -99,22 +132,34 @@ func _enter_tree() -> void: # create dialogbox
 	container.margin_left = text_margin.x
 	container.margin_top = text_margin.y
 	
+	# name the container as if not, its default name would be something like: @@1
 	container.name = "Container"
+	# add the container to the scene tree
 	add_child(container)
 	
+	# check if the user wants to use the character frame
 	if use_character_frame:
+		# if he wants to use it this scene is instanced. 
+		# this was neccessary as I couldn't get it to work just with creating objects
 		container.add_child(hsplit_instance)
 		
+		# here we're referencing two important nodes
 		text_node = $Container/HSplitContainer/text
-		frame = $Container/HSplitContainer/frame
+		character_frame = $Container/HSplitContainer/frame
 		
-		if change_frame_side: # For changing the side of the frame, for this the frames node position in the scene tree is set to 0
-			$Container/HSplitContainer.move_child(frame, 0)
+		# if the user want's to have the frame on the left side
+		# for this the frame node is moved up in the scene tree
+		if change_frame_side:
+			$Container/HSplitContainer.move_child(character_frame, 0)
+	# if the user doesn't want to use the character frame
 	else:
 		# instance the text
 		container.add_child(text_instance)
 		
+		# reference the text node
 		text_node = $Container/text
+		# this is necessary as there is no HSplitContainer setting the size of
+		# the text like we see in HSplitContainer.tscn
 		text_node.rect_size = textbox_size
 		
 	# set the text font
@@ -124,85 +169,108 @@ func _enter_tree() -> void: # create dialogbox
 	# initalize the sound
 	audio = AudioStreamPlayer.new()
 	
+	# check if the user set a sound
 	if sound != null:
 		audio.set_stream(sound)
-		
+	
+	# name the audiostreamplayer
+	audio.name = "sound"
+	# and add it to the scene tree
 	add_child(audio)
-
-func _ready() -> void: # show text as soon as ready
-	yield(get_tree(), "idle_frame")
+	
+	# make the text which was set in the inspector visible when the game started
 	if text.size() > 0 && !Engine.editor_hint:
 		show_text(text)
 	else:
+		# make the text which was set in the inspector, visible in the editor
 		if text.size() <= 0:
 			return
 		text_node.set_bbcode(text[0])
 		
+		# make the character frame which was set in the inspector, visible in the editor
 		if use_character_frame:
-			frame.texture = frame_textures[0]
+			character_frame.texture = frame_textures[0]
 
 func show_text(textarray : Array, framearray : Array = [0]) -> void: # the show_text function
+	# make the box visible
 	show()
 	
-	var current_visible_characters : int
-	
+	# variables for the character frame to function
 	var frame_array_count := -1
 	var frame_count : int
 	
+	# the loop for showing the text
 	for text in textarray:
+		
+		# set the text
+		text_node.set_bbcode(text)
+		# yield a frame, as when not done, get_total_character_count() won't work
+		yield(get_tree(), "idle_frame")
+		
+		# check if the character frame is used and then set the texture
 		if use_character_frame:
 			frame_array_count += 1
 			frame_count = framearray[frame_array_count]
-			frame.texture = frame_textures[frame_count]
-			
-		text_node.set_visible_characters(0)
-		text_node.set_bbcode(text)
-		yield(get_tree(), "idle_frame")
+			character_frame.texture = frame_textures[frame_count]
 		
+		# check if use_visible_characters is true, then make the text show up
 		if use_visible_characters:
+			# # set the visible characters to 0, so no characters (letters) are shown
+			text_node.set_visible_characters(0)
 			for i in text_node.get_total_character_count():
+				# set visible_character += 1, so a character (letter) shows up
 				text_node.visible_characters += 1
 				
-					
+				# check if there's a sound assigned and if it should play
 				if sound != null and play_sound:
 					audio.play()
-					
+				
+				# check if the user wants to speed the dialog up, then speed it up with speedup_speed
 				if Input.is_action_pressed(input_speedup) and use_speedup:
 					yield(get_tree().create_timer(speedup_speed/50), "timeout")
-					
+				# if not, speed it up with the character_speed speed
 				else:
 					yield(get_tree().create_timer(character_speed/10), "timeout")
-					
-		else:
-			text_node.set_visible_characters(-1)
-			
+		
+		# the dialog is finshed ow, emit the signal
 		emit_signal("dialog_finished")
 		
+		# if use input_trigger is set true, wait until it's triggered
 		if use_input_trigger:
 			yield(self, "input_triggered")
+		#if not wait a sceond and proceed
 		else:
+			# change the numer in create_timer(), if you don't want it to be 1 second
 			yield(get_tree().create_timer(1), "timeout")
-		
-		yield(get_tree(), "idle_frame")
-		
+	
+	# stop the audio for the sound
 	audio.stop()
+	
+	# hide the Box
 	hide()
 	
+	# and finally, emit the signal that we're finished
 	emit_signal("finished")
 
 func _input(event) -> void: # input function to know, when the user wants to see the next dialog
 	if Input.is_action_just_pressed(input_trigger):
 		emit_signal("input_triggered")
 
-func _exit_tree() -> void: # remove dialogbox
+func _exit_tree() -> void: # remove the childs of the dialogbox
 	$Container.queue_free()
 
 """
 Setters and Getters
 """
 
-func set_visible_characters_usage(value) -> void:
+func set_visible_characters_usage(value : bool) -> void:
 	use_visible_characters = value
 
 func is_visible_characters_usage() -> bool:
 	return use_visible_characters
+
+func set_audio_pitch(value : float) -> void:
+	audio.pitch_scale = value
+
+func get_audio_pitch() -> float:
+	return audio.pitch_scale

@@ -2,7 +2,7 @@ tool
 extends RichTextEffect
 class_name RichTextWait
 
-#Syntax: [wait time=0 speed=0][/wait]
+#Syntax: [wait time=0][/wait]
 
 var bbcode := "wait"
 

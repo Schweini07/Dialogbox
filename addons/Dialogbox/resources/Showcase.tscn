@@ -15,14 +15,16 @@ font_data = ExtResource( 2 )
 script = ExtResource( 5 )
 
 [node name="Dialogbox" type="NinePatchRect" parent="."]
+margin_left = -0.952637
 margin_top = -0.340561
-margin_right = 520.0
+margin_right = 519.047
 margin_bottom = 127.659
 texture = ExtResource( 4 )
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
+text = [ "Welcome to [color=aqua]Showcase.tscn[/color]. Here you can see how a scene with the [color=green]Dialogbox[/color] could be set up!" ]
 input_trigger = "ui_select"
 input_speedup = "ui_select"
 speedup_speed = 0.5
@@ -32,3 +34,4 @@ sound = ExtResource( 3 )
 font = SubResource( 1 )
 use_character_frame = true
 frame_textures = [ ExtResource( 8 ), ExtResource( 6 ) ]
+[connection signal="finished" from="Dialogbox" to="." method="_on_Dialogbox_finished"]
