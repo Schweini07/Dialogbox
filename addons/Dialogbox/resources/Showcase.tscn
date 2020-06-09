@@ -24,7 +24,6 @@ script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-text = [ "Welcome to [color=aqua]Showcase.tscn[/color]. Here you can see how a scene with the [color=green]Dialogbox[/color] could be set up!" ]
 input_trigger = "ui_select"
 input_speedup = "ui_select"
 speedup_speed = 0.5
@@ -34,4 +33,15 @@ sound = ExtResource( 3 )
 font = SubResource( 1 )
 use_character_frame = true
 frame_textures = [ ExtResource( 8 ), ExtResource( 6 ) ]
-[connection signal="finished" from="Dialogbox" to="." method="_on_Dialogbox_finished"]
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+margin_left = 1.01703
+margin_top = 176.745
+margin_right = 336.017
+margin_bottom = 293.745
+bbcode_enabled = true
+bbcode_text = "Welcome to [color=aqua]Showcase.tscn[/color]. Here you can see how a scene with the [color=green]Dialogbox[/color] could be set up!"
+text = "Welcome to Showcase.tscn. Here you can see how a scene with the Dialogbox could be set up!"
+__meta__ = {
+"_edit_use_anchors_": false
+}

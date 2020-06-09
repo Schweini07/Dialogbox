@@ -1,19 +1,9 @@
-[gd_scene load_steps=5 format=2]
-
-[ext_resource path="res://addons/Dialogbox/custom_bbcode/RichTextWait.gd" type="Script" id=1]
-[ext_resource path="res://addons/Dialogbox/custom_bbcode/RichtTextPitch.gd" type="Script" id=2]
-
-[sub_resource type="RichTextEffect" id=1]
-script = ExtResource( 1 )
-
-[sub_resource type="RichTextEffect" id=2]
-script = ExtResource( 2 )
+[gd_scene format=2]
 
 [node name="text" type="RichTextLabel"]
 margin_right = 256.0
 margin_bottom = 64.0
 bbcode_enabled = true
-custom_effects = [ SubResource( 1 ), SubResource( 2 ) ]
 __meta__ = {
 "_edit_use_anchors_": false
 }

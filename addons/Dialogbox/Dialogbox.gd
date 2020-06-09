@@ -110,7 +110,13 @@ var character_frame : TextureRect
 # the AudioStreamPlayer which plays 'sound', an AudioStream
 var audio : AudioStreamPlayer
 
-# others
+# custom BBCode effects
+
+# the richtexteffect 'richtextwait'
+var richtextwait = RichTextWait.new()
+
+# the richtexteffect 'richtextpitch'
+var richtextpitch = RichTextPitch.new()
 
 # the pitch of the AudioStreanPlayer 'audio'
 var audio_pitch : float = 1.0 setget set_audio_pitch, get_audio_pitch
@@ -120,6 +126,9 @@ Basic Functions
 """
 
 func _enter_tree() -> void: # create dialogbox
+	# set variable descriptions
+	#speedup_speed.set_meta("editor_description", "Dt")
+	
 	# container for the text
 	var container = Container.new()
 	# set the layout to full_rect
@@ -161,7 +170,11 @@ func _enter_tree() -> void: # create dialogbox
 		# this is necessary as there is no HSplitContainer setting the size of
 		# the text like we see in HSplitContainer.tscn
 		text_node.rect_size = textbox_size
-		
+	
+	# set custom effects
+	text_node.install_effect(richtextwait)
+	text_node.install_effect(richtextpitch)
+	
 	# set the text font
 	if font != null:
 		text_node.add_font_override("normal_font", font)
@@ -201,11 +214,8 @@ func show_text(textarray : Array, framearray : Array = [0]) -> void: # the show_
 	
 	# the loop for showing the text
 	for text in textarray:
-		
 		# set the text
 		text_node.set_bbcode(text)
-		# yield a frame, as when not done, get_total_character_count() won't work
-		yield(get_tree(), "idle_frame")
 		
 		# check if the character frame is used and then set the texture
 		if use_character_frame:
@@ -213,16 +223,27 @@ func show_text(textarray : Array, framearray : Array = [0]) -> void: # the show_
 			frame_count = framearray[frame_array_count]
 			character_frame.texture = frame_textures[frame_count]
 		
+		
 		# check if use_visible_characters is true, then make the text show up
 		if use_visible_characters:
-			# # set the visible characters to 0, so no characters (letters) are shown
+			# yield a frame, as when not done, get_total_character_count() won't work
+			yield(get_tree(), "idle_frame")
+			
+			# set the visible characters to 0, so no characters (letters) are shown
 			text_node.set_visible_characters(0)
+			
 			for i in text_node.get_total_character_count():
+				if richtextwait.wait:
+					yield(get_tree().create_timer(richtextwait.time), "timeout")
+					richtextwait.wait = false
+				
 				# set visible_character += 1, so a character (letter) shows up
 				text_node.visible_characters += 1
 				
 				# check if there's a sound assigned and if it should play
-				if sound != null and play_sound:
+				if play_sound:
+					if richtextpitch.into_block:
+						audio.pitch_scale = richtextpitch.pitch
 					audio.play()
 				
 				# check if the user wants to speed the dialog up, then speed it up with speedup_speed
@@ -231,6 +252,11 @@ func show_text(textarray : Array, framearray : Array = [0]) -> void: # the show_
 				# if not, speed it up with the character_speed speed
 				else:
 					yield(get_tree().create_timer(character_speed/10), "timeout")
+				
+				audio.pitch_scale = 1
+		
+			# stop the audio for the sound
+			audio.stop()
 		
 		# the dialog is finshed ow, emit the signal
 		emit_signal("dialog_finished")
@@ -243,8 +269,6 @@ func show_text(textarray : Array, framearray : Array = [0]) -> void: # the show_
 			# change the numer in create_timer(), if you don't want it to be 1 second
 			yield(get_tree().create_timer(1), "timeout")
 	
-	# stop the audio for the sound
-	audio.stop()
 	
 	# hide the Box
 	hide()
